@@ -2,6 +2,7 @@ from flask_restx import Namespace, Resource, fields
 from flask import request
 from app.apis.users.crud import get_user_count_by_username,signup,get_user_by_username
 from app import bcrypt
+from app.utils.utils import encode_auth_token
 users_namespace= Namespace("users")
 
 user_model= users_namespace.model("user", {
@@ -60,11 +61,20 @@ class Login(Resource):
             if user:
                 is_valid= bcrypt.check_password_hash(user['password'], password)
                 if is_valid:
-                    auth_token= encode
+                    auth_token= encode_auth_token(username)
+                    responseObject = {
+                        "auth_token": auth_token,
+                        "message": "Logged in successfully!"
+                    }
+                    return responseObject, 200
                 else:
                     users_namespace.abort(401, "Wrong password")
             else:
                 users_namespace.abort(400, "User doesn't exist")
         else:
             username.abort(400, "PLease fill up all fields.")
+
+
+users_namespace.add_resource(Login, "/login", endpoint="login")
+users_namespace.add_resource(Signup, "/signup", endpoint="signup")
 
