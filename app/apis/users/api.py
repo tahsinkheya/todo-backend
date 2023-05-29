@@ -1,6 +1,6 @@
 from flask_restx import Namespace, Resource, fields
 from flask import request
-from app.apis.users.crud import get_user_count_by_username,signup
+from app.apis.users.crud import get_user_count_by_username,signup,get_user_by_username
 from app import bcrypt
 users_namespace= Namespace("users")
 
@@ -11,9 +11,14 @@ user_model= users_namespace.model("user", {
     "password": fields.String(required=False),
 })
 
-user_login_model= users_namespace.model("user", {
+user_login_model= users_namespace.model("user_login_model", {
     "username": fields.String(required=False),
     "password": fields.String(required=False),
+})
+
+user_login_model_response= users_namespace.model("user_login_model_response", {
+    "message": fields.String(required=False),
+    "auth_token": fields.String(required=False),
 })
 
 
@@ -38,4 +43,28 @@ class Signup(Resource):
 
         else:
             users_namespace.abort(400, f"PLease fill up all fields.")
+
+class Login(Resource):
+    @users_namespace.marshall_with(user_login_model_response)
+    @users_namespace.expect(user_login_model)
+    @users_namespace.response(200, "Login successfull.")
+    @users_namespace.response(400, "PLease fill up all fields.")
+    @users_namespace.response(401, "Wrong password")
+    @users_namespace.response(400, "User doesn't exist")
+    def post(self):
+        data=request.get_json()
+        username=data.get('username')
+        password=data.get('password')
+        if username and password:
+            user=get_user_by_username(username)
+            if user:
+                is_valid= bcrypt.check_password_hash(user['password'], password)
+                if is_valid:
+                    auth_token= encode
+                else:
+                    users_namespace.abort(401, "Wrong password")
+            else:
+                users_namespace.abort(400, "User doesn't exist")
+        else:
+            username.abort(400, "PLease fill up all fields.")
 
