@@ -2,3 +2,4 @@ Flask
 flask-restx
 pyjwt
 flask_pymongo
+Flask_Bcrypt

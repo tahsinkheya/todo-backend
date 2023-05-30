@@ -29,24 +29,26 @@ class Signup(Resource):
     @users_namespace.response(400, "PLease fill up all fields.")
     @users_namespace.response(409, "User with this username already exists.")
     def post(self):
-        data=request.get_json()
-        fname=data.get("first_name")
-        lname=data.get("last_name")
-        username=data.get("username")
-        password=data.get("password")
-        if fname and lname and username and password:
-            if get_user_count_by_username(username):
-               hashed_password= bcrypt.generate_password_hash(password,13).decode()
-               signup(username,fname, lname, hashed_password)
-               return {"message":"User signed up successfully"}, 200
+        try:
+            data=request.get_json()
+            fname=data.get("first_name")
+            lname=data.get("last_name")
+            username=data.get("username")
+            password=data.get("password")
+            if fname and lname and username and password:
+                if get_user_count_by_username(username):
+                    hashed_password= bcrypt.generate_password_hash(password,13).decode()
+                    signup(username,fname, lname, hashed_password)
+                    return {"message":"User signed up successfully"}, 200
+                else:
+                    users_namespace.abort(409, f"User with this username already exists.")
             else:
-                users_namespace.abort(409, f"User with this username already exists.")
-
-        else:
-            users_namespace.abort(400, f"PLease fill up all fields.")
+                users_namespace.abort(400, f"PLease fill up all fields.")
+        except Exception as e:
+            return {"message":e}, 400
 
 class Login(Resource):
-    @users_namespace.marshall_with(user_login_model_response)
+    @users_namespace.marshal_with(user_login_model_response)
     @users_namespace.expect(user_login_model)
     @users_namespace.response(200, "Login successfull.")
     @users_namespace.response(400, "PLease fill up all fields.")
@@ -72,7 +74,7 @@ class Login(Resource):
             else:
                 users_namespace.abort(400, "User doesn't exist")
         else:
-            username.abort(400, "PLease fill up all fields.")
+            users_namespace.abort(400, "PLease fill up all fields.")
 
 
 users_namespace.add_resource(Login, "/login", endpoint="login")

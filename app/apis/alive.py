@@ -6,7 +6,7 @@ alive_namespace=Namespace("ping")
 respon= alive_namespace.model ("alive", {"status": fields.String(required=True), "message":fields.String(required=True)})
 
 class Alive(Resource):
-    @alive_namespace.marshall_with(respon)
+    @alive_namespace.marshal_with(respon)
     @alive_namespace.response(200, "Alive")
     def get(self):
         response = {}
