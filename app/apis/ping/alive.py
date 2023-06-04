@@ -3,7 +3,7 @@ from flask_restx import Namespace, Resource, fields
 
 alive_namespace=Namespace("ping")
 
-respon= alive_namespace.model ("alive", {"status": fields.String(required=True), "message":fields.String(required=True)})
+respon= alive_namespace.model("alive", {"status": fields.String(required=True), "message":fields.String(required=True)})
 
 class Alive(Resource):
     @alive_namespace.marshal_with(respon)
@@ -13,5 +13,6 @@ class Alive(Resource):
         response['status']= "success"
         response['message']= "Alive"
         return response, 200
+ 
     
-alive_namespace.add_resource( Alive, "")
+alive_namespace.add_resource( Alive, "/alive")
