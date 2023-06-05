@@ -2,7 +2,7 @@ from flask_restx import Namespace, Resource, fields
 from app.apis.users.crud import get_user_count_by_username,signup,get_user_by_username
 from app import bcrypt
 from app.utils.utils import encode_auth_token
-from flask import abort, request, current_app as app
+from flask import abort,session, request, current_app as app
 
 users_namespace= Namespace("users")
 
@@ -66,6 +66,7 @@ class Login(Resource):
             if user:
                 is_valid= bcrypt.check_password_hash(user['password'], password)
                 if is_valid:
+                    session['username']=username
                     auth_token= encode_auth_token(username)
                     responseObject = {
                         "auth_token": auth_token,

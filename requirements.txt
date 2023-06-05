@@ -3,3 +3,4 @@ flask-restx
 pyjwt
 flask_pymongo
 Flask_Bcrypt
+flask_cors
