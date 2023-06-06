@@ -9,8 +9,10 @@ def token_required(f):
     def decorated(*args, **kwargs):
         auth_token = request.headers.get("Authorization")
         if auth_token:
-            token = auth_token.split(" ")[1]
-        payload = decode_auth_token(token)
+            auth_token = auth_token.split(" ")[1]
+        payload = decode_auth_token(auth_token)
+        app.logger.info(payload)
+
         if payload == "expired":
             abort(401, "Expired Token")
         elif payload == "invalid" or payload == "blacklisted":

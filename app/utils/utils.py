@@ -13,11 +13,13 @@ def encode_auth_token(username):
         return e
     
 def decode_auth_token(token):
+    current_app.logger.info(current_app.config['SECRET_KEY'])
     try:
-        payload= jwt.decode(token, current_app.config['SECRET_KEY'], algorithm='HS256', verify=True)
+        payload= jwt.decode(token, current_app.config['SECRET_KEY'], algorithms=["HS256"])
         return payload
     except jwt.ExpiredSignatureError as e:
         return "expired"
     except jwt.InvalidTokenError as e:
+        current_app.logger.info(e)
         return "invalid"
 
